@@ -1,0 +1,22 @@
+*~
+*.pyc
+
+# ignore cache
+__pycache__
+.cache/
+
+# ignore produced files
+cp_poly/
+cpt_poly/
+countries/
+*.txt
+*.h5
+*.pickle
+*.gpkg
+*.md
+!README.md
+
+# ignore eclipse files
+.project
+.pydevproject
+.settings
