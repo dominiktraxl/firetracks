@@ -482,6 +482,20 @@ class ProcessYearFday(object):
         myd_fires = np.asarray(mydds.attributes()['FirePix'])
         if (mod_fires > 0).any() or (myd_fires > 0).any():
 
+            # which satellite
+            mods = mod_fm_full[fm_full >= 7]
+            myds = myd_fm_full[fm_full >= 7]
+            mods = np.where(mods >= 7, True, False)
+            myds = np.where(myds >= 7, True, False)
+            satellite = []
+            for mod, myd in zip(mods, myds):
+                if mod and not myd:
+                    satellite.append('MOD')
+                elif myd and not mod:
+                    satellite.append('MYD')
+                else:
+                    satellite.append('both')
+
             # maxfrp
             mod_maxfrps_full = -np.ones((8, 1200, 1200), dtype=np.int32)
             mod_maxfrps_full[mod_days] = modds.select('MaxFRP').get()
@@ -555,7 +569,7 @@ class ProcessYearFday(object):
                                     'conf': confidence,
                                     # 'area': area,
                                     'maxFRP': maxfrps,
-                                    'satellite': 'both'})
+                                    'satellite': satellite})
 
             # for fday=361 get rid of fire events from next year
             if self.fday == 361:
@@ -741,9 +755,9 @@ def main(year):
                 geometry=[Point(xy) for xy in zip(v['lon'], v['lat'])])
             vc = gpd.sjoin(
                 vg, country_boundaries[['NAME_EN', 'CONTINENT', 'geometry']],
-                how='inner', op='intersects')
-            v['country'] = vc['NAME_EN']
-            v['continent'] = vc['CONTINENT']
+                how='left', op='intersects')
+            v['country'] = vc['NAME_EN'].values
+            v['continent'] = vc['CONTINENT'].values
 
     except ValueError:
         v = pd.DataFrame()
@@ -802,7 +816,6 @@ if __name__ == '__main__':
     # store as hdf
     store = pd.HDFStore(os.path.join(cwd, 'v.h5'), mode='w')
     store.append('v', v, format='t', data_columns=True, index=False)
-    # create table index for faster access during edge creation
-    store.create_table_index('v', columns=['t'], kind='full')
+    store.create_table_index('v', columns=['t', 'dtime'], kind='full')
     store.close()
     print('stored {}'.format(os.path.join(cwd, 'v.h5')))
