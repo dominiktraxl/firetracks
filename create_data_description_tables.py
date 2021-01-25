@@ -59,7 +59,7 @@ v = {'Name':
       'days since 2002-01-01',
       'country of occurrence',
       'continent of occurrence',
-      'minimum of fire pixel classes of neighboring grid cells*',
+      'minimum of fire pixel classes of neighboring grid cells',
       'location ID on the global sinusoidal MODIS grid',
       'component membership label'],
 
