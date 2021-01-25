@@ -74,9 +74,9 @@ if os.path.isfile(os.path.join(cwd, 'countries', countries_shp)):
         geometry=[Point(xy) for xy in zip(cp['lon_mean'], cp['lat_mean'])])
     cpc = gpd.sjoin(
         cpg, country_boundaries[['NAME_EN', 'CONTINENT', 'geometry']],
-        how='inner', op='intersects')
-    cp['country'] = cpc['NAME_EN']
-    cp['continent'] = cpc['CONTINENT']
+        how='left', op='intersects')
+    cp['country'] = cpc['NAME_EN'].values
+    cp['continent'] = cpc['CONTINENT'].values
 
 
 # dtypes
