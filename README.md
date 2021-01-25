@@ -110,6 +110,12 @@ cpt_poly = gpd.read_file(os.path.join(os.getcwd(), 'cpt_poly.gpkg'))
 
 ```
 
+Note: `v.h5` is sorted and indexed by `dtime`, allowing for fast queries by
+time, e.g.:
+
+```python
+v_2015 = pd.read_hdf('v.h5', 'v', where='dtime >= "2015-01-01" & dtime < "2016-01-01"')
+```
 
 ## Data Content
 
