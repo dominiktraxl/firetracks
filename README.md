@@ -164,7 +164,7 @@ missing/cloud pixels in the neighborhood of a fire event.
 | t         | days since 2002-01-01                                        | days since 2002-01-01 | >= 0                               | uint16      |
 | country   | country of occurrence                                        | -                     | -                                  | string      |
 | continent | continent of occurrence                                      | -                     | -                                  | string      |
-| neigh_int | minimum of fire pixel classes of neighboring grid cells&ast; | -                     | [0, 9]                             | uint8       |
+| neigh_int | minimum of fire pixel classes of neighboring grid cells      | -                     | [0, 9]                             | uint8       |
 | gl        | location ID on the global sinusoidal MODIS grid              | -                     | [0, 36&ast;1200&ast;18&ast;1200-1] | uint32      |
 | cp        | component membership label                                   | -                     | >= 0                               | int64       |
 
@@ -224,6 +224,10 @@ information for each spatiotemporal fire component.
 | lc_X   | number of subpixels burnt belonging to land cover X     | -      | >= 0          | int64       |
 | plc_X  | proportion of subpixels burnt belonging to land cover X | -      | [0, 1]        | float64     |
 | flc_X  | number of ignition subpixels belonging to land cover X  | -      | >= 0          | int64       |
+
+*a spatiotemporal fire component has a dominant land cover type X, if at least
+80% of burnt subpixels belong to land cover X. Otherwise, `dlc` is set to
+"None".
 
 
 ### Spatiotemporal Fire Component GeoPackage `cp_poly.gpkg`
