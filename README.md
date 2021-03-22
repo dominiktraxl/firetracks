@@ -194,10 +194,10 @@ fire event.
 The spatiotemporal fire component table provides summarizing characteristics
 of spatiotemporally tracked fire components.
 
-A component is defined as a coherent set of grid cells, all of which have the same
-state. Cells are coherent if they can reach each other via nearest neighbor
-relations. In most cases, the von Neumann neighborhood (four adjacent cells)
-is considered.
+A fire component is defined as a coherent set of grid cells on fire. Cells are
+coherent if they can reach each other via nearest neighbor relations considering
+a 3d-Moore neighborhood (26 adjacent cells, 3\*3\*3 [lat\*lon\*time] grid cell
+box with the fire event in the center).
 
 | Name          | Description                                            | Unit                  | Valid Range             | Data Type   |
 |:--------------|:-------------------------------------------------------|:----------------------|:------------------------|:------------|
