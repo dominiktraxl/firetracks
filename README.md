@@ -8,6 +8,7 @@ based on the MODIS Fire Products MOD14A1/MYD14A1 and the MODIS Land Cover
 Product MCD12Q1. It entails HDF5-tables/GeoPackages of active fire events,
 spatiotemporal components of fire events and associated land cover information.
 
+See [Data Content](#data-content) for further details.
 
 ## Installation
 
@@ -122,7 +123,7 @@ v_2015 = pd.read_hdf('v.h5', 'v', where='dtime >= "2015-01-01" & dtime < "2016-0
 ### Active Fire Events Table `v.h5`
 
 The active fire events table is a combination of the MODIS products MOD14A1 and
-MYD14A1. Fire events from both products´ fire masks are extracted and stored in
+MYD14A1. Fire events from the fire masks of both products are extracted and stored in
 table format. For fires measured by both satellites, the maximum value of the
 individual `maxFRP` values is stored. Furthermore, for each fire, the minimum
 of the fire pixel classes of all 26 neighboring grid cells (3\*3\*3
@@ -192,6 +193,11 @@ fire event.
 
 The spatiotemporal fire component table provides summarizing characteristics
 of spatiotemporally tracked fire components.
+
+A component is defined as a coherent set of grid cells, all of which have the same
+state. Cells are coherent if they can reach each other via nearest neighbor
+relations. In most cases, the von Neumann neighborhood (four adjacent cells)
+is considered.
 
 | Name          | Description                                            | Unit                  | Valid Range             | Data Type   |
 |:--------------|:-------------------------------------------------------|:----------------------|:------------------------|:------------|
