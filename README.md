@@ -1,14 +1,93 @@
 # FireTracks Scientific Dataset
 
+![](cp_time_evolution.gif)
+
+
+## Content
+
+- [About](#about)
+- [Overview](#overview)
+- [Installation](#installation)
+- [Getting Orginal Data](#getting-original-data)
+- [Creating the FireTracks Scientific Dataset](#creating-the-firetracks-scientific-dataset)
+- [Loading the FireTracks Scientific Dataset Using Python](#loading-the-firetracks-scientific-dataset-using-python)
+- [Data Content](#data-content)
+  - [Active Fire Events Table](#active-fire-events-table-vh5)
+  - [Active Fire Land Cover Table](#active-fire-land-cover-table-v_lch5)
+  - [Spatiotemporal Fire Component Table](#spatiotemporal-fire-component-table-cph5)
+  - [Spatiotemporal Fire Component Land Cover Table](#spatiotemporal-fire-component-land-cover-table-cp_lch5)
+  - [Spatiotemporal Fire Component GeoPackage](#spatiotemporal-fire-component-geopackage-cp_polygpkg)
+  - [Spatiotemporal Fire Component (Per Time-Slice) GeoPackage](#spatiotemporal-fire-component-per-time-slice-geopackage-cpt_polygpkg)
+
+
 ## About
 
 This is a collection of python scripts that produces the
-[FireTracks Scientific Dataset](https://add.data.link). The dataset is
-based on the MODIS Fire Products MOD14A1/MYD14A1 and the MODIS Land Cover
-Product MCD12Q1. It entails HDF5-tables/GeoPackages of active fire events,
-spatiotemporal components of fire events and associated land cover information.
+[FireTracks Scientific Dataset](https://add.data.link). The dataset is based on
+the MODIS Fire Products
+[MOD14A1](https://lpdaac.usgs.gov/products/mod14a1v006/)/
+[MYD14A1](https://lpdaac.usgs.gov/products/myd14a1v006/) and the MODIS Land
+Cover Product [MCD12Q1](https://lpdaac.usgs.gov/products/mcd12q1v006/). It
+entails HDF5-tables/GeoPackages of active fire events, spatiotemporal
+components of fire events and associated land cover information.
 
-See [Data Content](#data-content) for further details.
+Note: the quality of the FireTracks Scientific Dataset depends entirely on the
+underlying MOD14A1/MYD14A1/MCD12Q1 datasets, and it is strongly recommended to
+read the respective user guides before using the data:
+
+- [MOD14A1 User Guide](https://lpdaac.usgs.gov/documents/876/MOD14_User_Guide_v6.pdf)
+- [MYD14A1 User Guide](https://lpdaac.usgs.gov/documents/876/MOD14_User_Guide_v6.pdf)
+- [MCD12Q1 User Guide](https://lpdaac.usgs.gov/documents/101/MCD12_User_Guide_V6.pdf)
+
+
+## Overview
+
+The FireTracks Scientific Dataset is derived from the Aqua and Terra Moderate
+Resolution Imaging Spectroradiometer (MODIS) Collection 6.1 (C61) Thermal
+Anomalies and Fire Data (MOD14A1 and MYD14A1). These satellite products include
+1-km gridded fire masks over daily (24-hour) compositing periods.
+
+Part of the FireTracks Scientific Dataset is the
+[Active Fire Events Table](#active-fire-events-table-vh5), which contains single
+pixel fire events in table format from the fire masks of both satellite
+products. The [Active Fire Land Cover Table](#active-fire-land-cover-table-v_lch5)
+provides land cover information for each fire event of the active fire events
+table, derived from the MODIS product MCD12Q1.
+
+The centerpiece of the FireTracks Scientific Dataset is the
+[Spatiotemporal Fire Component Table](#spatiotemporal-fire-component-table-cph5),
+providing summarizing characteristics of spatiotemporally tracked fire components.
+It is derived from the active fire events table by performing a spatiotemporal
+clustering of the single pixel fire events. A spatiotemporal cluster is
+identified as the union of nearest neighbors of fire events in the discrete
+space-time grid prescribed by the resolution of the MODIS fire masks (temporal
+resolution: 1 day, spatial resolution: 1 km). We consider a 3d-Moore
+neighborhood for the clustering (26 adjacent cells, 3\*3\*3 [x\*y\*time] grid
+cell box with the fire event in the center). Below, you see an example of a
+spatiotemporal fire component comprised of 5 single pixel fire events, evolving
+over 4 consecutive days. At the top of this webpage, you see the temporal
+evolution of one of the largest spatiotemporal fire components found in the
+data. It was recorded in the summer of 2018 in California, lasting 48 days and
+burning a total of 1893 km^2 with an integrated radiative power of 1.614.436 MW.
+
+<p align="center">
+  <img width="324" height="200" src="https://github.com/dominiktraxl/firetracks_test/blob/main/cp_scheme.svg">
+</p>
+
+The active fire events table and the spatiotemporal fire component table are
+linked to each other via the `cp` column (component membership label) of the
+events table, and the index of the component table (corresponding to the
+membership label of the events table).
+
+Land cover information for each spatiotemporal fire component is summarized in the
+[Spatiotemporal Fire Component Land Cover Table](#spatiotemporal-fire-component-land-cover-table-cp_lch5).
+
+Additionally, the FireTracks Scientific Dataset provides polygon vector data for
+each spatiotemporal fire component ([Spatiotemporal Fire Component GeoPackage](#spatiotemporal-fire-component-geopackage-cp_polygpkg)),
+as well as for each time-slice of every spatiotemporal fire component
+([Spatiotemporal Fire Component (Per Time-Slice) GeoPackage](#spatiotemporal-fire-component-per-time-slice-geopackage-cpt_polygpkg)).
+
+For further details of the provided HDF5-tables/GeoPackages, see [Data Content](#data-content).
 
 ## Installation
 
@@ -33,6 +112,7 @@ $ conda create -n FT
 $ conda activate FT
 $ conda install -c conda-forge pyhdf numpy scipy pandas pytables deepgraph geopandas shapely
 ```
+
 
 ## Getting Original Data
 
@@ -118,6 +198,7 @@ time, e.g.:
 v_2015 = pd.read_hdf('v.h5', 'v', where='dtime >= "2015-01-01" & dtime < "2016-01-01"')
 ```
 
+
 ## Data Content
 
 ### Active Fire Events Table `v.h5`
@@ -199,24 +280,25 @@ coherent if they can reach each other via nearest neighbor relations considering
 a 3d-Moore neighborhood (26 adjacent cells, 3\*3\*3 [lat\*lon\*time] grid cell
 box with the fire event in the center).
 
-| Name          | Description                                            | Unit                  | Valid Range             | Data Type   |
-|:--------------|:-------------------------------------------------------|:----------------------|:------------------------|:------------|
-| n_nodes       | number of constituent fire events                      | -                     | >= 1                    | int64       |
-| t_min         | ignition date (days since 2002-01-01)                  | days since 2002-01-01 | >= 0                    | uint16      |
-| t_max         | extinction date (days since 2002-01-01)                | days since 2002-01-01 | >= 0                    | uint16      |
-| dtime_min     | ignition date (YYYY-MM-DD)                             | -                     | >= 2002-01-01           | datetime64  |
-| dtime_max     | extinction date (YYYY-MM-DD)                           | -                     | >= 2002-01-01           | datetime64  |
-| lat_mean      | mean location latitude                                 | degrees               | [-180, 180]             | float64     |
-| lon_mean      | mean location longitude                                | degrees               | [-90, 90]               | float64     |
-| maxFRP_mean   | mean maximum fire radiative power                      | MW&ast;10             | >= 0                    | float64     |
-| neigh_int_min | minimum of constituent fire event´s "neigh_int" values | -                     | [0, 9]                  | uint8       |
-| neigh_min     | string representation of "neigh_int_min"               | -                     | -                       | string      |
-| duration      | fire duration                                          | days                  | >= 1                    | uint16      |
-| unique_gls    | number of grid locations burnt                         | -                     | >= 1                    | uint32      |
-| area          | total area burnt                                       | km^2                  | >= 0.86 (1 MODIS pixel) | float64     |
-| expansion     | average daily fire expansion                           | km^2 day^-1           | > 0                     | float64     |
-| country       | country of occurrence                                  | -                     | -                       | string      |
-| continent     | continent of occurrence                                | -                     | -                       | string      |
+| Name          | Description                                              | Unit                  | Valid Range             | Data Type   |
+|:--------------|:---------------------------------------------------------|:----------------------|:------------------------|:------------|
+| n_nodes       | number of constituent fire events                        | -                     | >= 1                    | int64       |
+| t_min         | ignition date (days since 2002-01-01)                    | days since 2002-01-01 | >= 0                    | uint16      |
+| t_max         | extinction date (days since 2002-01-01)                  | days since 2002-01-01 | >= 0                    | uint16      |
+| dtime_min     | ignition date (YYYY-MM-DD)                               | -                     | >= 2002-01-01           | datetime64  |
+| dtime_max     | extinction date (YYYY-MM-DD)                             | -                     | >= 2002-01-01           | datetime64  |
+| lat_mean      | mean location latitude                                   | degrees               | [-180, 180]             | float64     |
+| lon_mean      | mean location longitude                                  | degrees               | [-90, 90]               | float64     |
+| maxFRP_mean   | mean maximum fire radiative power                        | MW&ast;10             | >= 0                    | float64     |
+| maxFRP_sum    | sum of maximum fire radiative powers                     | MW&ast;10             | >= 0                    | float64     |
+| neigh_int_min | minimum of "neigh_int" values of constituent fire events | -                     | [0, 9]                  | uint8       |
+| neigh_min     | string representation of "neigh_int_min"                 | -                     | -                       | string      |
+| duration      | fire duration                                            | days                  | >= 1                    | uint16      |
+| unique_gls    | number of grid locations burnt                           | -                     | >= 1                    | uint32      |
+| area          | total area burnt                                         | km^2                  | >= 0.86 (1 MODIS pixel) | float64     |
+| expansion     | average daily fire expansion                             | km^2 day^-1           | > 0                     | float64     |
+| country       | country of occurrence                                    | -                     | -                       | string      |
+| continent     | continent of occurrence                                  | -                     | -                       | string      |
 
 
 ### Spatiotemporal Fire Component Land Cover Table `cp_*lc*.h5`
