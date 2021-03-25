@@ -38,6 +38,10 @@ from shapely.geometry import Point
 from pyhdf.SD import SD, SDC
 from pyhdf.error import HDF4Error
 
+# parameters
+min_year = 2002
+max_year = 2020
+
 # argument parameters
 parser = argparse.ArgumentParser(
     description=__doc__,
@@ -100,10 +104,6 @@ R_e = 6378.137
 h = 705
 # earth radius + satellite altitude [km]
 r = R_e + h
-
-# years to process
-min_year = 2002
-max_year = 2020
 
 # MODIS tiles
 Hs = np.arange(0, 36)
