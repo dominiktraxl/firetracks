@@ -115,8 +115,8 @@ v_lc = {'Name':
 cp = {'Name':
 
       ['n_nodes', 't_min', 't_max', 'dtime_min', 'dtime_max', 'lat_mean',
-       'lon_mean', 'maxFRP_mean', 'neigh_int_min', 'neigh_min', 'duration',
-       'unique_gls', 'area', 'expansion', 'country', 'continent'],
+       'lon_mean', 'maxFRP_mean', 'maxFRP_sum', 'neigh_int_min', 'neigh_min',
+       'duration', 'unique_gls', 'area', 'expansion', 'country', 'continent'],
 
       'Description':
 
@@ -125,7 +125,8 @@ cp = {'Name':
        'extinction date (days since 2002-01-01)', 'ignition date (YYYY-MM-DD)',
        'extinction date (YYYY-MM-DD)', 'mean location latitude',
        'mean location longitude', 'mean maximum fire radiative power',
-       'minimum of constituent fire event´s "neigh_int" values',
+       'sum of maximum fire radiative powers',
+       'minimum of "neigh_int" values of constituent fire events',
        'string representation of "neigh_int_min"', 'fire duration',
        'number of grid locations burnt', 'total area burnt',
        'average daily fire expansion',
@@ -134,20 +135,20 @@ cp = {'Name':
       'Unit':
 
       ['-', 'days since 2002-01-01', 'days since 2002-01-01', '-', '-',
-       'degrees', 'degrees', 'MW*10', '-', '-', 'days', '-', 'km^2',
+       'degrees', 'degrees', 'MW*10', 'MW*10', '-', '-', 'days', '-', 'km^2',
        'km^2 day^-1', '-', '-'],
 
       'Valid Range':
 
       ['>= 1', '>= 0', '>= 0', '>= 2002-01-01', '>= 2002-01-01', '[-180, 180]',
-       '[-90, 90]', '>= 0', '[0, 9]', '-', '>= 1', '>= 1',
+       '[-90, 90]', '>= 0', '>= 0', '[0, 9]', '-', '>= 1', '>= 1',
        '>= 0.86 (1 MODIS pixel)', '> 0', '-', '-'],
 
       'Data Type':
 
       ['int64', 'uint16', 'uint16', 'datetime64', 'datetime64', 'float64',
-       'float64', 'float64', 'uint8', 'string', 'uint16', 'uint32', 'float64',
-       'float64', 'string', 'string']}
+       'float64', 'float64', 'float64', 'uint8', 'string', 'uint16', 'uint32',
+       'float64', 'float64', 'string', 'string']}
 
 
 # ----------------------------------------------------------------------------

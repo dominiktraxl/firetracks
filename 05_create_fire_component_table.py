@@ -43,7 +43,7 @@ feature_funcs = {
     'dtime': ['min', 'max'],
     'lat': ['mean'],
     'lon': ['mean'],
-    'maxFRP': ['mean'],
+    'maxFRP': ['mean', 'sum'],
     'neigh_int': ['min'],
 }
 
