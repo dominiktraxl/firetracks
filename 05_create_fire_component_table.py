@@ -30,12 +30,10 @@ ndict = {
 }
 
 # load fire events and component information
-store = pd.HDFStore(os.path.join(cwd, 'v.h5'), mode='r')
-v = store.select(
-    'v', columns=['t', 'dtime', 'lat', 'lon', 'maxFRP', 'neigh_int', 'gl']
+v = pd.read_hdf(
+    os.path.join(cwd, 'v.h5'),
+    columns=['t', 'dtime', 'lat', 'lon', 'maxFRP', 'neigh_int', 'gl', 'cp']
 )
-v['cp'] = store['v_cp']
-store.close()
 
 # feature functions, will be applied on each component
 feature_funcs = {
@@ -82,9 +80,16 @@ if os.path.isfile(os.path.join(cwd, 'countries', countries_shp)):
 # dtypes
 cp = cp.astype({'unique_gls': np.uint32})
 
-# store cp as hdf5
+# sort by time (beginning of component)
+cp.sort_values('dtime_min', kind='mergesort', inplace=True)
+
+# reset index
+cp.reset_index(inplace=True)
+
+# store cp as hdf
 cp_file = os.path.join(cwd, 'cp.h5')
 store = pd.HDFStore(cp_file, mode='w')
 store.append('cp', cp, format='t', data_columns=True, index=False)
+store.create_table_index('cp', columns=['t_min', 'dtime_min'], kind='full')
 store.close()
 print('stored {}'.format(cp_file))
