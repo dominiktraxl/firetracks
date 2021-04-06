@@ -51,21 +51,17 @@ n_proc = 100
 
 # file system
 cwd = os.getcwd()
-v_file = os.path.join(cwd, 'v.h5')
-v_lc_file = os.path.join(cwd, 'v_{}.h5'.format(lc_type))
 
-# load land cover table, location labels and component information
-store = pd.HDFStore(v_file, mode='r')
-v = store.select('v', columns=['gl', 't'])
-v['cp'] = store.select('v_cp')
-store.close()
-
-v_lc = pd.read_hdf(v_lc_file, 'v_{}'.format(lc_type))
-v_lc['cp'] = v['cp']
-v_lc['gl'] = v['gl']
-v_lc['t'] = v['t']
-
+# load land cover table, location labels, time and component information
+v = pd.read_hdf(os.path.join(cwd, 'v.h5'), columns=['gl', 't', 'cp'])
+v_lc = pd.read_hdf(os.path.join(cwd, 'v_{}.h5'.format(lc_type)))
+v_lc['cp'] = v['cp'].values
+v_lc['gl'] = v['gl'].values
+v_lc['t'] = v['t'].values
 del v
+
+# load cp.h5 index for sorting
+cp = pd.read_hdf(os.path.join(cwd, 'cp.h5'), columns=['cp', 'dtime_min'])
 
 # unique land covers
 lcs = np.sort(pd.unique(v_lc[['lc1', 'lc2', 'lc3', 'lc4']].values.ravel('K')))
@@ -139,10 +135,21 @@ if __name__ == '__main__':
     # concat
     cp_lc = pd.concat(cpt_lcs)
 
+    # sort like cp.h5
+    cp_lc = cp_lc.loc[cp['cp'].values]
+
+    # add dtime
+    cp_lc['dtime_min'] = cp['dtime_min'].values
+
+    # reset index
+    cp_lc.reset_index(inplace=True)
+
     # store cp as hdf5
     cp_lc_file = os.path.join(cwd, 'cp_{}.h5'.format(lc_type))
     store = pd.HDFStore(cp_lc_file, mode='w')
     store.append('cp_{}'.format(lc_type), cp_lc, format='t', data_columns=True,
                  index=False)
+    store.create_table_index('cp_{}'.format(lc_type), columns=['dtime_min'],
+                             kind='full')
     store.close()
     print('stored {}'.format(cp_lc_file))
