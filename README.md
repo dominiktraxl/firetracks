@@ -23,7 +23,7 @@
 ## About
 
 This is a collection of python scripts that produces the
-[FireTracks Scientific Dataset](https://add.data.link). The dataset is based on
+[FireTracks Scientific Dataset](https://doi.org/10.5281/zenodo.4461575). The dataset is based on
 the MODIS Fire Products
 [MOD14A1](https://lpdaac.usgs.gov/products/mod14a1v006/)/
 [MYD14A1](https://lpdaac.usgs.gov/products/myd14a1v006/) and the MODIS Land
@@ -39,17 +39,21 @@ read the respective user guides before using the data:
 - [MYD14A1 User Guide](https://lpdaac.usgs.gov/documents/876/MOD14_User_Guide_v6.pdf)
 - [MCD12Q1 User Guide](https://lpdaac.usgs.gov/documents/101/MCD12_User_Guide_V6.pdf)
 
+Download: the FireTracks Scientific Dataset, processed for the years 2002-2020,
+can be downloaded here: https://doi.org/10.5281/zenodo.4461575
+
 
 ## Overview
 
 The FireTracks Scientific Dataset is derived from the Aqua and Terra Moderate
 Resolution Imaging Spectroradiometer (MODIS) Collection 6.1 (C61) Thermal
 Anomalies and Fire Data (MOD14A1 and MYD14A1). These satellite products include
-1-km gridded fire masks over daily (24-hour) compositing periods.
+1-km gridded fire masks over daily (24-hour) compositing periods on a global scale,
+from the year 2000 to the present.
 
 Part of the FireTracks Scientific Dataset is the
 [Active Fire Events Table](#active-fire-events-table-vh5), which contains single
-pixel fire events in table format from the fire masks of both satellite
+pixel fire events in table format extracted from the fire masks of both satellite
 products. The [Active Fire Land Cover Table](#active-fire-land-cover-table-v_lch5)
 provides land cover information for each fire event of the active fire events
 table, derived from the MODIS product MCD12Q1.
@@ -75,9 +79,9 @@ burning a total of 1893 km^2 with an integrated radiative power of 1.614.436 MW.
 </p>
 
 The active fire events table and the spatiotemporal fire component table are
-linked to each other via the `cp` column (component membership label) of the
-events table, and the index of the component table (corresponding to the
-membership label of the events table).
+linked to each other via the `cp` column of the events table
+(the component membership label) and the `cp` column of the component table
+(the component index).
 
 Land cover information for each spatiotemporal fire component is summarized in the
 [Spatiotemporal Fire Component Land Cover Table](#spatiotemporal-fire-component-land-cover-table-cp_lch5).
@@ -122,8 +126,7 @@ original data that it is based on: MOD14A1, MYD14A1 and MCD12Q1.
 You can download the data here: https://search.earthdata.nasa.gov/search
 
 Search for the products (MOD14A1, MYD14A1 and MCD12Q1), select the spatial and
-temporal domain you're interested in, and then download the data either via
-direct download or an access script.
+temporal domain you're interested in, and then download the data.
 
 The data must be stored in their respective folders (MOD14A1, MYD14A1, MCD12Q1)
 in the same directory as the python scripts. There should be no subdirectories
@@ -169,10 +172,7 @@ import pandas as pd
 import geopandas as gpd
 
 # active fire events table
-v = pd.read_hdf('v.h5', 'v')
-
-# add component membership labels to v
-v['cp'] = pd.read_hdf('v.h5', 'v_cp')
+v = pd.read_hdf('v.h5')
 
 # active fire land cover table
 v_lc = pd.read_hdf('v_LC_Type1.h5')
@@ -184,19 +184,39 @@ cp = pd.read_hdf('cp.h5')
 cp_lc = pd.read_hdf('cp_LC_Type1.h5')
 
 # spatiotemporal fire component shapefile
-cp_poly = gpd.read_file(os.path.join(os.getcwd(), 'cp_poly.gpkg'))
+cp_poly = gpd.read_file('cp_poly.gpkg')
 
 # spatiotemporal fire component shapefile per time-slice
-cpt_poly = gpd.read_file(os.path.join(os.getcwd(), 'cpt_poly.gpkg'))
+cpt_poly = gpd.read_file('cpt_poly.gpkg')
 
 ```
 
-Note: `v.h5` is sorted and indexed by `dtime`, allowing for fast queries by
-time, e.g.:
+Note:
 
-```python
-v_2015 = pd.read_hdf('v.h5', 'v', where='dtime >= "2015-01-01" & dtime < "2016-01-01"')
-```
+- `v.h5` and `v_*lc*.h5` are sorted and indexed by `dtime`, allowing for fast
+queries by time, e.g.:
+
+    ```python
+    v_2019 = pd.read_hdf('v.h5', where='dtime >= "2019-01-01" & dtime < "2020-01-01"')
+    v_lc_2019 = pd.read_hdf('v_LC_Type1.h5', where='dtime >= "2019-01-01" & dtime < "2020-01-01"')
+    ```
+
+- `cp.h5` and `cp_*lc*.h5` are sorted and indexed by `dtime_min`, allowing for
+fast queries by time, e.g.:
+
+    ```python
+    cp_2019 = pd.read_hdf('cp.h5', where='dtime_min >= "2019-01-01" & dtime_min < "2020-01-01"')
+    cp_lc_2019 = pd.read_hdf('cp_LC_Type1.h5', where='dtime_min >= "2019-01-01" & dtime_min < "2020-01-01"')
+    ```
+
+- to load specific rows of `cp_poly.gpkg` or `cpt_poly.gpkg` using geopandas,
+you can pass an `int` or `slice` object as argument `rows` to the `gpd.read_file` method,
+e.g.:
+
+    ```python
+    cp_poly_selection = gpd.read_file('cp_poly.gpkg', rows=5)
+    cpt_poly_selection = gpd.read_file('cpt_poly.gpkg', rows=slice(10, 20))
+    ```
 
 
 ## Data Content
@@ -228,27 +248,27 @@ compared to the original fire pixel classes):
 This minimum value (`neigh_int`) allows us to see if there are any
 missing/cloud pixels in the neighborhood of a fire event.
 
-| Name      | Description                                                  | Unit                  | Valid Range                        | Data Type   |
-|:----------|:-------------------------------------------------------------|:----------------------|:-----------------------------------|:------------|
-| lat       | location latitude                                            | degress               | [-180, 180]                        | float64     |
-| lon       | location longitude                                           | degrees               | [-90, 90]                          | float64     |
-| x         | x-coordinate on global sinusoidal MODIS grid                 | -                     | [0, 36&ast;1200-1]                 | uint16      |
-| y         | y-coordinate on global sinusoidal MODIS grid                 | -                     | [0, 18&ast;1200-1]                 | uint16      |
-| H         | horizontal MODIS tile coordinate                             | -                     | [0, 35]                            | uint8       |
-| V         | vertical MODIS tile coordinate                               | -                     | [0, 17]                            | uint8       |
-| i         | row coordinate of the grid cell within MODIS tile (H, V)     | -                     | [0, 1199]                          | uint16      |
-| j         | column coordinate of the grid cell within MODIS tile (H, V)  | -                     | [0, 1199]                          | uint16      |
-| dtime     | date (YYYY-MM-DD)                                            | -                     | >= 2002-01-01                      | datetime64  |
-| conf      | detection confidence [7: low, 8: nominal, 9: high]           | -                     | [7, 9]                             | uint8       |
-| maxFRP    | maximum fire radiative power                                 | MW&ast;10             | >= 0                               | int32       |
-| satellite | which satellite detected the fire [MOD, MYD, both]           | -                     | -                                  | string      |
-| neigh     | string representation of "neigh_int"                         | -                     | -                                  | string      |
-| t         | days since 2002-01-01                                        | days since 2002-01-01 | >= 0                               | uint16      |
-| country   | country of occurrence                                        | -                     | -                                  | string      |
-| continent | continent of occurrence                                      | -                     | -                                  | string      |
-| neigh_int | minimum of fire pixel classes of neighboring grid cells      | -                     | [0, 9]                             | uint8       |
-| gl        | location ID on the global sinusoidal MODIS grid              | -                     | [0, 36&ast;1200&ast;18&ast;1200-1] | uint32      |
-| cp        | component membership label                                   | -                     | >= 0                               | int64       |
+| Name      | Description                                                 | Unit                  | Valid Range                        | Data Type   |
+|:----------|:------------------------------------------------------------|:----------------------|:-----------------------------------|:------------|
+| lat       | location latitude                                           | degress               | [-180, 180]                        | float64     |
+| lon       | location longitude                                          | degrees               | [-90, 90]                          | float64     |
+| x         | x-coordinate on global sinusoidal MODIS grid                | -                     | [0, 36&ast;1200-1]                 | uint16      |
+| y         | y-coordinate on global sinusoidal MODIS grid                | -                     | [0, 18&ast;1200-1]                 | uint16      |
+| H         | horizontal MODIS tile coordinate                            | -                     | [0, 35]                            | uint8       |
+| V         | vertical MODIS tile coordinate                              | -                     | [0, 17]                            | uint8       |
+| i         | row coordinate of the grid cell within MODIS tile (H, V)    | -                     | [0, 1199]                          | uint16      |
+| j         | column coordinate of the grid cell within MODIS tile (H, V) | -                     | [0, 1199]                          | uint16      |
+| dtime     | date (YYYY-MM-DD)                                           | -                     | >= 2002-01-01                      | datetime64  |
+| conf      | detection confidence [7: low, 8: nominal, 9: high]          | -                     | [7, 9]                             | uint8       |
+| maxFRP    | maximum fire radiative power                                | MW&ast;10             | >= 0                               | int32       |
+| satellite | which satellite detected the fire [MOD, MYD, both]          | -                     | -                                  | string      |
+| neigh     | string representation of "neigh_int"                        | -                     | -                                  | string      |
+| t         | days since 2002-01-01                                       | days since 2002-01-01 | >= 0                               | uint16      |
+| country   | country of occurrence                                       | -                     | -                                  | string      |
+| continent | continent of occurrence                                     | -                     | -                                  | string      |
+| neigh_int | minimum of fire pixel classes of neighboring grid cells     | -                     | [0, 9]                             | uint8       |
+| gl        | location ID on the global sinusoidal MODIS grid             | -                     | [0, 36&ast;1200&ast;18&ast;1200-1] | uint32      |
+| cp        | component membership label                                  | -                     | >= 0                               | int64       |
 
 
 ### Active Fire Land Cover Table `v_*lc*.h5`
@@ -268,6 +288,7 @@ fire event.
 | lc2    | land cover type of subpixel 2 (numerical) | -      | [0, 255]      | uint8       |
 | lc3    | land cover type of subpixel 3 (numerical) | -      | [0, 255]      | uint8       |
 | lc4    | land cover type of subpixel 4 (numerical) | -      | [0, 255]      | uint8       |
+| dtime  | date (YYYY-MM-DD)                         | -      | >= 2002-01-01 | datetime64  |
 
 
 ### Spatiotemporal Fire Component Table `cp.h5`
@@ -282,6 +303,7 @@ box with the fire event in the center).
 
 | Name          | Description                                              | Unit                  | Valid Range             | Data Type   |
 |:--------------|:---------------------------------------------------------|:----------------------|:------------------------|:------------|
+| cp            | component index                                          | -                     | >= 0                    | int64       |
 | n_nodes       | number of constituent fire events                        | -                     | >= 1                    | int64       |
 | t_min         | ignition date (days since 2002-01-01)                    | days since 2002-01-01 | >= 0                    | uint16      |
 | t_max         | extinction date (days since 2002-01-01)                  | days since 2002-01-01 | >= 0                    | uint16      |
@@ -306,12 +328,14 @@ box with the fire event in the center).
 The spatiotemporal fire component land cover table provides land cover
 information for each spatiotemporal fire component.
 
-| Name   | Description                                             | Unit   | Valid Range   | Data Type   |
-|:-------|:--------------------------------------------------------|:-------|:--------------|:------------|
-| dlc    | dominant land cover type&ast;                           | -      | -             | string      |
-| lc_X   | number of subpixels burnt belonging to land cover X     | -      | >= 0          | int64       |
-| plc_X  | proportion of subpixels burnt belonging to land cover X | -      | [0, 1]        | float64     |
-| flc_X  | number of ignition subpixels belonging to land cover X  | -      | >= 0          | int64       |
+| Name      | Description                                             | Unit   | Valid Range   | Data Type   |
+|:----------|:--------------------------------------------------------|:-------|:--------------|:------------|
+| cp        | component index                                         | -      | >= 0          | int64       |
+| dlc       | dominant land cover type&ast;                           | -      | -             | string      |
+| lc_X      | number of subpixels burnt belonging to land cover X     | -      | >= 0          | int64       |
+| plc_X     | proportion of subpixels burnt belonging to land cover X | -      | [0, 1]        | float64     |
+| flc_X     | number of ignition subpixels belonging to land cover X  | -      | >= 0          | int64       |
+| dtime_min | ignition date (YYYY-MM-DD)                              | -      | >= 2002-01-01 | datetime64  |
 
 *a spatiotemporal fire component has a dominant land cover type X, if at least
 80% of burnt subpixels belong to land cover X. Otherwise, `dlc` is set to
@@ -325,7 +349,7 @@ each spatiotemporal fire component.
 
 | Name      | Description                                                 | Unit   | Valid Range             | Data Type     |
 |:----------|:------------------------------------------------------------|:-------|:------------------------|:--------------|
-| cp        | component membership label                                  | -      | >= 0                    | int64         |
+| cp        | component index                                             | -      | >= 0                    | int64         |
 | area      | total area burnt                                            | km^2   | >= 0.86 (1 MODIS pixel) | float64       |
 | perimeter | final perimeter                                             | km     | >= 3.71 (1 MODIS pixel) | float64       |
 | geometry  | (Multi)Polygon vector data of spatiotemporal fire component | -      | -                       | GeometryDtype |
@@ -338,7 +362,7 @@ each time-slice of every spatiotemporal fire component.
 
 | Name      | Description                                                 | Unit                  | Valid Range             | Data Type     |
 |:----------|:------------------------------------------------------------|:----------------------|:------------------------|:--------------|
-| cp        | component membership label                                  | -                     | >= 0                    | int64         |
+| cp        | component index                                             | -                     | >= 0                    | int64         |
 | t         | days since 2002-01-01                                       | days since 2002-01-01 | >= 0                    | int64         |
 | area      | total area burnt                                            | km^2                  | >= 0.86 (1 MODIS pixel) | float64       |
 | perimeter | perimeter at given day                                      | km                    | >= 3.71 (1 MODIS pixel) | float64       |
