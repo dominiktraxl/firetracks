@@ -87,26 +87,27 @@ v = {'Name':
 
 v_lc = {'Name':
 
-        ['lc1', 'lc2', 'lc3', 'lc4'],
+        ['lc1', 'lc2', 'lc3', 'lc4', 'dtime'],
 
         'Description':
 
         ['land cover type of subpixel 1 (numerical)',
          'land cover type of subpixel 2 (numerical)',
          'land cover type of subpixel 3 (numerical)',
-         'land cover type of subpixel 4 (numerical)',],
+         'land cover type of subpixel 4 (numerical)',
+         'date (YYYY-MM-DD)'],
 
         'Unit':
 
-        ['-', '-', '-', '-'],
+        ['-', '-', '-', '-', '-'],
 
         'Valid Range':
 
-        ['[0, 255]', '[0, 255]', '[0, 255]', '[0, 255]'],
+        ['[0, 255]', '[0, 255]', '[0, 255]', '[0, 255]', '>= 2002-01-01'],
 
         'Data Type':
 
-        ['uint8', 'uint8', 'uint8', 'uint8']}
+        ['uint8', 'uint8', 'uint8', 'uint8', 'datetime64']}
 
 
 # ----------------------------------------------------------------------------
@@ -114,13 +115,14 @@ v_lc = {'Name':
 
 cp = {'Name':
 
-      ['n_nodes', 't_min', 't_max', 'dtime_min', 'dtime_max', 'lat_mean',
+      ['cp', 'n_nodes', 't_min', 't_max', 'dtime_min', 'dtime_max', 'lat_mean',
        'lon_mean', 'maxFRP_mean', 'maxFRP_sum', 'neigh_int_min', 'neigh_min',
        'duration', 'unique_gls', 'area', 'expansion', 'country', 'continent'],
 
       'Description':
 
-      ['number of constituent fire events',
+      ['component index',
+       'number of constituent fire events',
        'ignition date (days since 2002-01-01)',
        'extinction date (days since 2002-01-01)', 'ignition date (YYYY-MM-DD)',
        'extinction date (YYYY-MM-DD)', 'mean location latitude',
@@ -134,21 +136,21 @@ cp = {'Name':
 
       'Unit':
 
-      ['-', 'days since 2002-01-01', 'days since 2002-01-01', '-', '-',
+      ['-', '-', 'days since 2002-01-01', 'days since 2002-01-01', '-', '-',
        'degrees', 'degrees', 'MW*10', 'MW*10', '-', '-', 'days', '-', 'km^2',
        'km^2 day^-1', '-', '-'],
 
       'Valid Range':
 
-      ['>= 1', '>= 0', '>= 0', '>= 2002-01-01', '>= 2002-01-01', '[-180, 180]',
-       '[-90, 90]', '>= 0', '>= 0', '[0, 9]', '-', '>= 1', '>= 1',
-       '>= 0.86 (1 MODIS pixel)', '> 0', '-', '-'],
+      ['>= 0', '>= 1', '>= 0', '>= 0', '>= 2002-01-01', '>= 2002-01-01',
+       '[-180, 180]', '[-90, 90]', '>= 0', '>= 0', '[0, 9]', '-', '>= 1',
+       '>= 1', '>= 0.86 (1 MODIS pixel)', '> 0', '-', '-'],
 
       'Data Type':
 
-      ['int64', 'uint16', 'uint16', 'datetime64', 'datetime64', 'float64',
-       'float64', 'float64', 'float64', 'uint8', 'string', 'uint16', 'uint32',
-       'float64', 'float64', 'string', 'string']}
+      ['int64', 'int64', 'uint16', 'uint16', 'datetime64', 'datetime64',
+       'float64', 'float64', 'float64', 'float64', 'uint8', 'string', 'uint16',
+       'uint32', 'float64', 'float64', 'string', 'string']}
 
 
 # ----------------------------------------------------------------------------
@@ -156,26 +158,28 @@ cp = {'Name':
 
 cp_lc = {'Name':
 
-         ['dlc', 'lc_X', 'plc_X', 'flc_X'],
+         ['cp', 'dlc', 'lc_X', 'plc_X', 'flc_X', 'dtime_min'],
 
          'Description':
 
-         ['dominant land cover type*',
+         ['component index',
+          'dominant land cover type*',
           'number of subpixels burnt belonging to land cover X',
           'proportion of subpixels burnt belonging to land cover X',
-          'number of ignition subpixels belonging to land cover X'],
+          'number of ignition subpixels belonging to land cover X',
+          'ignition date (YYYY-MM-DD)'],
 
          'Unit':
 
-         ['-', '-', '-', '-'],
+         ['-', '-', '-', '-', '-', '-'],
 
          'Valid Range':
 
-         ['-', '>= 0', '[0, 1]', '>= 0'],
+         ['>= 0', '-', '>= 0', '[0, 1]', '>= 0', '>= 2002-01-01'],
 
          'Data Type':
 
-         ['string', 'int64', 'float64', 'int64'],}
+         ['int64', 'string', 'int64', 'float64', 'int64', 'datetime64']}
 
 
 # ----------------------------------------------------------------------------
@@ -187,7 +191,7 @@ cp_poly = {'Name':
 
            'Description':
 
-           ['component membership label', 'total area burnt',
+           ['component index', 'total area burnt',
             'final perimeter',
             '(Multi)Polygon vector data of spatiotemporal fire component'],
 
@@ -213,7 +217,7 @@ cpt_poly = {'Name':
 
             'Description':
 
-            ['component membership label', 'days since 2002-01-01',
+            ['component index', 'days since 2002-01-01',
              'total area burnt', 'perimeter at given day',
              '(Multi)Polygon vector data of spatiotemporal fire component'],
 
