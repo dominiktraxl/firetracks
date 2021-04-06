@@ -24,10 +24,21 @@ e = pd.read_pickle(os.path.join(cwd, 'e.pickle'))
 # find components
 g = dg.DeepGraph(v, e)
 g.append_cp()
+cps = g.v['cp'].values
 
-# add component column as new node to v.h5
-store = pd.HDFStore(os.path.join(cwd, 'v.h5'), mode='r+')
-store.append('v_cp', g.v['cp'], format='t', data_columns=True, index=False)
+# free up memory
+del g
+del e
+
+# load v.h5
+v = pd.read_hdf(os.path.join(cwd, 'v.h5'))
+
+# append cp column
+v['cp'] = cps
+
+# store as hdf (overwrite)
+store = pd.HDFStore(os.path.join(cwd, 'v.h5'), mode='w')
+store.append('v', v, format='t', data_columns=True, index=False)
+store.create_table_index('v', columns=['t', 'dtime'], kind='full')
 store.close()
-print("stored component column 'cp' as new node 'v_cp' in {}".format(
-    os.path.join(cwd, 'v.h5')))
+print('overwrote {}'.format(os.path.join(cwd, 'v.h5')))
