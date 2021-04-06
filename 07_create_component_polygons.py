@@ -56,17 +56,15 @@ ymin = -10007554.677
 w = T/1200.
 
 # load fire event dataframe
-store = pd.HDFStore(os.path.join(cwd, 'v.h5'), mode='r')
-v = store.select('v', columns=['lat', 'lon', 'H', 'V', 'i', 'j', 't'])
-v['cp'] = store['v_cp']
-store.close()
+v = pd.read_hdf(os.path.join(cwd, 'v.h5'),
+                columns=['lat', 'lon', 'H', 'V', 'i', 'j', 't', 'cp'])
 
 # convert to geodataframe
-v = gpd.GeoDataFrame(
-    v,
-    crs='epsg:4326',
-    geometry=[Point(xy) for xy in zip(v['lon'], v['lat'])]
-)
+v = gpd.GeoDataFrame(v, crs='epsg:4326',
+                     geometry=[Point(xy) for xy in zip(v['lon'], v['lat'])])
+
+# load cp.h5 index for sorting
+cp = pd.read_hdf(os.path.join(cwd, 'cp.h5'), columns=['cp'])
 
 # index array
 n_cps = v['cp'].max() + 1
@@ -179,9 +177,11 @@ if __name__ == '__main__':
     cp_poly['perimeter'] = cp_poly['geometry'].to_crs({'proj':'cea'}).map(
         lambda x: x.length / 10**3)
 
-    # set index
+    # sort like cp.h5
+    cp_poly = cp_poly.loc[cp['cp'].values]
+
+    # reset index
     cp_poly.reset_index(inplace=True)
-    cp_poly.index = range(len(cp_poly))
 
     # dtypes
     if args.slice_by_time:
