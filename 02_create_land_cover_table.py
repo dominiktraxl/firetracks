@@ -171,6 +171,9 @@ def main(year):
     vt = v.loc[v['dtime'].dt.year == year]
     vt_lc = process_land_cover(vt, lcm)
 
+    # add dtime
+    vt_lc['dtime'] = vt['dtime'].values
+
     return vt_lc, meta
 
 
@@ -208,5 +211,7 @@ if __name__ == '__main__':
     store = pd.HDFStore(v_lc_file, mode='w')
     store.append('v_{}'.format(lc_type), v_lc, format='t', data_columns=True,
                  index=False)
+    store.create_table_index('v_{}'.format(lc_type), columns=['dtime'],
+                             kind='full')
     store.close()
     print('stored {}'.format(v_lc_file))
