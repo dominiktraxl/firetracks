@@ -1,4 +1,6 @@
-# FireTracks Scientific Dataset
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4461575.svg)](https://doi.org/10.5281/zenodo.4461575)
+
+# The FireTracks Scientific Dataset
 
 ![](cp_time_evolution.gif)
 
@@ -46,7 +48,7 @@ can be downloaded here: https://doi.org/10.5281/zenodo.4461575
 ## Overview
 
 The FireTracks Scientific Dataset is derived from the Aqua and Terra Moderate
-Resolution Imaging Spectroradiometer (MODIS) Collection 6.1 (C61) Thermal
+Resolution Imaging Spectroradiometer (MODIS) Collection 6 (C6) Thermal
 Anomalies and Fire Data (MOD14A1 and MYD14A1). These satellite products include
 1-km gridded fire masks over daily (24-hour) compositing periods on a global scale,
 from the year 2000 to the present.
