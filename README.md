@@ -14,6 +14,7 @@
 - [Getting Orginal Data](#getting-original-data)
 - [Creating the FireTracks Scientific Dataset](#creating-the-firetracks-scientific-dataset)
 - [Loading the FireTracks Scientific Dataset Using Python](#loading-the-firetracks-scientific-dataset-using-python)
+- [Converting HDF5 files to CSV files (CLI)](#converting-hdf5-files-to-csv-files-cli)
 - [Data Content](#data-content)
   - [Active Fire Events Table](#active-fire-events-table-vh5)
   - [Active Fire Land Cover Table](#active-fire-land-cover-table-v_lch5)
@@ -220,6 +221,41 @@ e.g.:
     cp_poly_selection = gpd.read_file('cp_poly.gpkg', rows=5)
     cpt_poly_selection = gpd.read_file('cpt_poly.gpkg', rows=slice(10, 20))
     ```
+
+
+## Converting HDF5 files to CSV files (CLI)
+
+The `h5tocsv.py` file contained in this repository allows you to convert
+the HDF5 files of the FireTracks Scientific Dataset into CSV files using
+the command line. Via optional arguments, it is possible to subset the original
+data by time and/or columns before the conversion to CSV.
+
+To run the conversion CLI, the following packages are required:
+
+- pandas
+- tables
+
+You can use [conda](https://docs.conda.io/en/latest/) to set up an environment
+and install all dependencies via
+
+```console
+$ conda create -n FTC
+$ conda activate FTC
+$ conda install -c conda-forge pandas pytables
+```
+
+To show the documentation of the CLI, type
+```console
+$ python h5tocsv.py -h
+```
+This will show the help message of `h5tocsv.py` and exit.
+
+The following example converts `cp.h5` into `cp.csv`, including only components
+with ignition dates between `2003-01-01` and `2003-07-01` (excluded). Only the
+columns `cp`, `maxFRP_sum`, `duration`, `area` and `country` are included in the CSV file.
+```console
+$ python h5tocsv.py cp.h5 cp.csv --from-time 2003-01-01 --to-time 2003-07-01 --columns cp maxFRP_sum duration area country
+```
 
 
 ## Data Content
