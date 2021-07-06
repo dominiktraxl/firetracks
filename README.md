@@ -1,4 +1,4 @@
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4709822.svg)](https://doi.org/10.5281/zenodo.4709822)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5075988.svg)](https://doi.org/10.5281/zenodo.5075988)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4461575.svg)](https://doi.org/10.5281/zenodo.4461575)
 
 # The FireTracks Scientific Dataset
