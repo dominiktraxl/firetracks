@@ -79,7 +79,7 @@ data. It was recorded in the summer of 2018 in California, lasting 48 days and
 burning a total of 1893 km^2 with an integrated radiative power of 1.614.436 MW.
 
 <p align="center">
-  <img width="324" height="200" src="https://github.com/dominiktraxl/firetracks_test/blob/main/cp_scheme.svg">
+  <img width="324" height="200" src="https://github.com/dominiktraxl/firetracks/blob/main/cp_scheme.svg">
 </p>
 
 The active fire events table and the spatiotemporal fire component table are
