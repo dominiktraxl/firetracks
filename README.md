@@ -22,6 +22,7 @@
   - [Spatiotemporal Fire Component Land Cover Table](#spatiotemporal-fire-component-land-cover-table-cp_lch5)
   - [Spatiotemporal Fire Component GeoPackage](#spatiotemporal-fire-component-geopackage-cp_polygpkg)
   - [Spatiotemporal Fire Component (Per Time-Slice) GeoPackage](#spatiotemporal-fire-component-per-time-slice-geopackage-cpt_polygpkg)
+- [Comparison between Active Fire Events Table and MCD14ML](#comparison-between-active-fire-events-table-and-mcd14ml)
 
 
 ## About
@@ -406,3 +407,69 @@ each time-slice of every spatiotemporal fire component.
 | area      | total area burnt                                            | km^2                  | >= 0.86 (1 MODIS pixel) | float64       |
 | perimeter | perimeter at given day                                      | km                    | >= 3.71 (1 MODIS pixel) | float64       |
 | geometry  | (Multi)Polygon vector data of spatiotemporal fire component | -                     | -                       | GeometryDtype |
+
+
+## Comparison between Active Fire Events Table and MCD14ML
+
+Apart from serving as the basis for the
+[Spatiotemporal Fire Component Table](#spatiotemporal-fire-component-table-cph5),
+the [Active Fire Events Table](#active-fire-events-table-vh5) can also be used as 
+an alternative to the MODIS Global Monthly Fire Location Product 
+[MCD14ML](https://earthdata.nasa.gov/earth-observation-data/near-real-time/firms/MCD14ML). 
+MCD14ML is based on the swath products [MOD14](https://lpdaac.usgs.gov/products/mod14v006/) 
+and [MYD14](https://lpdaac.usgs.gov/products/myd14v006/), rather than the tiled 
+MOD14A1 and MYD14A1 products, and can be downloaded as tables in plain ASCII 
+format. 
+
+For each active fire, MCD14ML contains the geographic location, the exact time
+of measurement, the satellite that made the measurement (Aqua or Terra), the
+band 21/31 brightness temperatures, the sample number, the fire radiative power,
+the detetection confidence, a day/night algorithm flag, and an inferred hot spot
+type (e.g. active volcano, offshore or presumed vegetation fire).
+In comparison, the [Active Fire Events Table](#active-fire-events-table-vh5) does
+not contain the exact time (i.e. hour and minute) of the measurement, since it is
+based on the daily aggregates MOD14A1 and MYD14A1. The events table also does not contain the
+brightness temperatures of fire pixels, the sample number, the day/night
+algorithm flag, or the inferred hot spot type. It does however, in addition to
+the other columns, contain the `neigh_int`-column, which provides information
+as to whether there are any missing/cloud pixels in the neighborhood of a fire
+event.
+
+To our surprise, we extract a lot more single pixel fire events from the Level 3
+MOD14A1 and MYD14A1 products than MCD14ML does from the Level 2 products MOD14
+and MYD14. This is surprising, because the MOD14A1 and MYD14A1 products are
+essentially maximum value composites of the MOD14 and MYD14 products. Our events
+table should therefore contain strictly less single pixel fire events than
+MCD14ML. We extract, however, a total of 145.673.360 single pixel fire events
+for the time period from 2003 to 2016, whereas MCD14ML only contains a total of
+67.081.995 fire events over the same period, less than half the amount. When we
+bin fire events from both tables onto the same regular 0.05° lat/lon
+grid with a daily resolution, we find a total of 45.242.414 grid cells
+containing fires. The [Active Fire Events Table](#active-fire-events-table-vh5) covers 98.9% of those
+burning grid cells, whereas MCD14ML only covers 82.5% of grid cells.
+Unfortunately, we are unaware of the reason for this discrepancy. There is no
+information in the manuals of the MODIS products that would explain it, and we
+did not get a reply from the creators of the MODIS products pertaining to this
+discrepancy. 
+
+The figure below depicts the number of single pixel fires by year
+for both the [Active Fire Events Table](#active-fire-events-table-vh5) and MCD14ML, as well the percentage of
+all fires per year for each respective product. Although the percentage curves
+of the events table and MCD14ML follow each other relatively closely, the
+discrepancy between the two data sets is reflected in this figure as well,
+particularly for the years 2003 and 2004, and the years 2011 and 2012.
+
+<p align="center">
+  <img width="595" height="354" src="https://github.com/dominiktraxl/firetracks/blob/master/fire_freq_Y_v_vs_mcd14ml.svg" alt>
+  <figcaption align="center"><b><em>Fig. 1</b> Depicted is the absolute number of
+  single pixel fire events entailed by FireTracks (FT) and MCD14ML per year (black line with
+  circle markers and red line with hexagon markers, respectively). Additionally,
+  the proportion (in percent) of all fire events between 2003 and 2016 of FT and
+  MCD14ML is illustrated as solid black and red lines, respectively.</em></figcaption>
+</p>
+
+Overall, we conclude that our events table entails more than twice as many fires
+as MCD14ML, whilst covering nearly all fires that MCD14ML contains.
+Additionally, our events table has the advantage that it comes with the
+[Active Fire Land Cover Table](#active-fire-land-cover-table-v_lch5), providing
+land cover information for each fire.
