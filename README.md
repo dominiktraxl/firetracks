@@ -23,6 +23,7 @@
   - [Spatiotemporal Fire Component GeoPackage](#spatiotemporal-fire-component-geopackage-cp_polygpkg)
   - [Spatiotemporal Fire Component (Per Time-Slice) GeoPackage](#spatiotemporal-fire-component-per-time-slice-geopackage-cpt_polygpkg)
 - [Comparison between Active Fire Events Table and MCD14ML](#comparison-between-active-fire-events-table-and-mcd14ml)
+- [Comparison between Spatiotemporal Fire Component Table and Global Fire Atlas](#comparison-between-spatiotemporal-fire-component-table-and-global-fire-atlas)
 
 
 ## About
@@ -424,7 +425,7 @@ format.
 For each active fire, MCD14ML contains the geographic location, the exact time
 of measurement, the satellite that made the measurement (Aqua or Terra), the
 band 21/31 brightness temperatures, the sample number, the fire radiative power,
-the detetection confidence, a day/night algorithm flag, and an inferred hot spot
+the detection confidence, a day/night algorithm flag, and an inferred hot spot
 type (e.g. active volcano, offshore or presumed vegetation fire).
 In comparison, the [Active Fire Events Table](#active-fire-events-table-vh5) does
 not contain the exact time (i.e. hour and minute) of the measurement, since it is
@@ -456,11 +457,11 @@ The figure below depicts the number of single pixel fires by year
 for both the [Active Fire Events Table](#active-fire-events-table-vh5) and MCD14ML, as well the percentage of
 all fires per year for each respective product. Although the percentage curves
 of the events table and MCD14ML follow each other relatively closely, the
-discrepancy between the two data sets is reflected in this figure as well,
+discrepancy between the two datasets is reflected in this figure as well,
 particularly for the years 2003 and 2004, and the years 2011 and 2012.
 
 <p align="center">
-  <img width="595" height="354" src="https://github.com/dominiktraxl/firetracks/blob/master/fire_freq_Y_v_vs_mcd14ml.svg" alt>
+  <img width="506" height="301" src="https://github.com/dominiktraxl/firetracks/blob/master/fire_freq_Y_v_vs_mcd14ml.svg" alt>
   <figcaption align="center"><b><em>Fig. 1</b> Depicted is the absolute number of
   single pixel fire events entailed by FireTracks (FT) and MCD14ML per year (black line with
   circle markers and red line with hexagon markers, respectively). Additionally,
@@ -473,3 +474,172 @@ as MCD14ML, whilst covering nearly all fires that MCD14ML contains.
 Additionally, our events table has the advantage that it comes with the
 [Active Fire Land Cover Table](#active-fire-land-cover-table-v_lch5), providing
 land cover information for each fire.
+
+
+## Comparison between Spatiotemporal Fire Component Table and Global Fire Atlas
+
+There are only very few global datasets that provide information
+on spatiotemporally tracked fire clusters. Two more well known datasets are the
+[Global Fire Atlas](https://www.globalfiredata.org/fireatlas.html)
+and the
+[Global Wildfire Dataset for the Analysis of Fire Regimes and Fire Behaviour](https://doi.org/10.1038/s41597-019-0312-2).
+Both of these datasets are derived from the MODIS 500-m Burned Area product
+[MCD64A1](https://lpdaac.usgs.gov/products/mcd64a1v006/). To our knowledge, the 
+FireTracks Scientific Dataset is the only dataset that uses active fires
+to derive spatiotemporally tracked fire clusters.
+
+Apart from using different input data, the algorithms used to identify spatiotemporal 
+clusters of fires also differ substantially. The FireTracks Scientific Dataset
+uses a very simple and conservative procedure: clusters are identified as the union of nearest 
+neighbors of active fires in the discrete spacetime grid given by the spatial 
+and temporal resolution of the MOD/MYD14A1 datasets. The Global Fire Atlas and the 
+Global Wildfire Dataset, on the other hand, use much more complex algorithms to
+detect spatiotemporal clusters.
+
+It is very difficult to assess the quality of any of the aforementioned datasets, 
+since ground based observations are scarce. Additional
+validation of the fire parameter estimates of the different datasets is still
+required. Principally, the quality of the datasets depends strongly on the inherent
+limitations of the fire and land-cover data that serve as input. It is therefore highly
+recommended to read the respective user guides before using the data. For instance, 
+the smallest identifiable fire size is imposed by the spatial resolution of the 
+input fire data. For the FireTracks Scientific Dataset this is 0.86 km<sup>2</sup>, 
+and for the Global Fire Atlas it is 0.21 km<sup>2</sup>. The Global Fire Atlas is therefore
+capable of identifying smaller fires. For both datasets, however, the error of 
+the estimated burnt area is expected to grow for smaller fires.
+
+Nevertheless, we can still compare the datasets to each other, and point out some
+(dis)advantages of the FireTracks Scientific Dataset over the Global Fire Atlas:
+
+  - Since the Global Fire Atlas is based on MCD64A1, it cannot account for 
+    multiple burns within a month on the same pixel. For instance, fires that last multipe 
+    days on the same location can therefore not be captured correctly by the Global Fire Atlas.
+
+  - Under relative cloudiness and below overstorey vegetation, the active fires
+    used by the FireTracks Scientific Dataset have an advantage, since their detection
+    is triggered by temperature anomalies that can sometimes be captured even under
+    those circumstances [[1]](#1). Changes in surface reflectance, as utilized by MCD64A1, 
+    are more easily obscured.
+    
+  - Although the same land cover product is used in both datasets (MCD12Q1), the Global Fire
+    Atlas uses collection 5.1, whereas the FireTracks Scientific Dataset uses collection 6. 
+    This collection includes refinements and new features that cause significant 
+    changes in the land-cover classification maps [[2]](#2).
+
+  - The FireTracks Scientific Dataset provides more detailed land-cover information.
+    The Global Fire Atlas provides one dominant land cover type for each fire cluster. 
+    The details on how this dominant land cover is assigned are not described 
+    in the documentation of the Global Fire Atlas. 
+    In Addition to the dominant land cover type, the FireTracks Scientific Dataset 
+    quantifies the area of each land use type burnt by a fire cluster. Furthermore, we provide the land use 
+    type(s) on which the fire ignited. Also, all land cover schemes provided by MCD12Q1 can be readily downloaded, whereas 
+    the Global Fire Atlas is only available with the UMD scheme.
+    
+  - The FireTracks Scientific Dataset is the only dataset that provides integrated fire radiative power for each
+    fire cluster (FRP). The FRP can be used to quantify the combusted biomass [[3]](#3) [[4]](#4) [[5]](#5).
+    
+  - Since the clustering approach of the FireTracks Scientific Dataset is maximally
+    conservative (no gaps between neighboring fires are allowed), we expect 
+    the distribution of fire sizes to be more skewed towards smaller fires compared
+    to the Global Fire Atlas. We do, however, provide information as to whether a fire
+    is neighbouring any cloud or missing data pixels.
+  
+The figure below depicts the absolute frequency distribution of spatiotemporal
+fire clusters by year for both the FireTracks Scientific Dataset (FT) and the 
+Global Fire Atlas (GFA), as well the percentage of all fire clusters per year 
+for each respective product. The number of fire clusters detected by the FT algorithm is 
+approximately twice as high as that for the GFA (27.8 x 10<sup>6</sup> versus 
+13.3 x 10<sup>6</sup> fire clusters, respectively). Although the percentage curves of FT 
+and GFA follow each other to a certain extent, temporal discrepancies are clearly evident.
+
+<p align="center">
+  <img width="506" height="301" src="https://github.com/dominiktraxl/firetracks/blob/master/fire_freq_Y_cp_vs_gfa.svg" alt>
+  <figcaption align="center"><b><em>Fig. 2</b> Frequency of spatiotemporal fire
+  components of FT and GFA. The absolute number of spatiotemporal fire components
+  entailed by FT and GFA per year is depicted (black line with circle markers and
+  blue line with diamond markers, respectively). Additionally, the proportion
+  (in percent) of all fire components between 2003 and 2016 of FT and GFA is
+  shown as solid black and blue lines, respectively.</em></figcaption>
+</p>
+
+A reason for the difference in the absolute number of fire clusters detected by FT and GFA
+can be inferred from the figure below. It shows the burnt area frequency distribution 
+of spatiotemporal fire components of FT and GFA. FT is more skewed towards smaller fire sizes. One 
+potential reason for this is our conservative clustering approach, leading to 
+more fragmented fire clusters. 
+
+<p align="center">
+  <img width="506" height="301" src="https://github.com/dominiktraxl/firetracks/blob/master/hist_area.svg" alt>
+  <figcaption align="center"><b><em>Fig. 3</b> Burnt area frequency distribution
+  of spatiotemporal fire components of FT and GFA. Depicted is the absolute
+  frequency distribution of the burnt area (in km<sup>2</sup>) of spatiotemporal fire
+  components for FT (black circles) and GFA (blue diamonds).</em></figcaption>
+</p>
+
+Using the [powerlaw](https://github.com/jeffalstott/powerlaw) package, we fit a
+set of candidate models to the distributions of different
+spatiotemporal fire cluster characteristics (area, duration, expansion and FRP). 
+These candidates include a log-normal, a stretched exponential, a powerlaw
+and a truncated powerlaw. In order to determine the optimal parameters for these models with respect to
+the observed distributions of characteristics, the powerlaw package employs maximum likelihood
+estimation (MLE) [[6]](#6). To compare the likelihood of each
+candidate, evaluated with the respective MLE-optimal parameters, the powerlaw package uses
+likelihood-ratio tests [[7]](#7). The results are depicted below.
+
+<p align="center">
+  <img width="1012" height="602" src="https://github.com/dominiktraxl/firetracks/blob/master/pdf_models_svg.svg" alt>
+  <figcaption align="center"><b><em>Fig. 4</b> Probability density functions for 
+  different characteristics of spatiotemporal fire components (FT and GFA). 
+  <b>(a)</b> Probability density of observed burnt areas (in km<sup>2</sup>) of 
+  spatiotemporal fire components for FT (black circles) and GFA (blue diamonds). 
+  A maximum likelihood estimation reveals a powerlaw distribution as the best fit 
+  for FT (black solid line), and a stretched exponential distribution as the best distribution for GFA (blue solid line).
+  <b>(b)</b> Probability density of observed durations (in days). For FT, there 
+  is no clear winner among the tested candidate distributions. For GFA, a truncated 
+  powerlaw distribution is the best model describing the distribution. <b>(c)</b> 
+  Probability density of observed expansion speeds (in km<sup>2</sup> day<sup>-1</sup>). For FT, 
+  a stretched exponential is the best fit, for GFA a truncated powerlaw. <b>(d)</b> 
+  Probability density of observed integrated fire radiative power (in MW). Only FT 
+  is shown, since GFA does not contain integrated fire radiative power for 
+  spatiotemporal components. A log normal distribution is the clear winner among 
+  the tested candidate distributions.</em></figcaption>
+</p>
+
+## References
+
+<a id="1">[1]</a>
+Humber, M. L., Boschetti, L., Giglio, L., & Justice, C. O. (2019). Spatial and 
+temporal intercomparison of four global burned area products. International 
+journal of digital earth, 12(4), 460-484.
+
+<a id="2">[2]</a>
+Sulla-Menashe, D., Gray, J. M., Abercrombie, S. P., & Friedl, M. A. (2019). 
+Hierarchical mapping of annual global land cover 2001 to present: The MODIS 
+Collection 6 Land Cover product. Remote Sensing of Environment, 222, 183-194.
+
+<a id="3">[3]</a>
+Wooster, M. J., Roberts, G., Perry, G. L. W., & Kaufman, Y. J. (2005). Retrieval 
+of biomass combustion rates and totals from fire radiative power observations: 
+FRP derivation and calibration relationships between biomass consumption and fire 
+radiative energy release. Journal of Geophysical Research: Atmospheres, 110(D24).
+
+<a id="4">[4]</a>
+Ichoku, C., Giglio, L., Wooster, M. J., & Remer, L. A. (2008). Global 
+characterization of biomass-burning patterns using satellite measurements of fire 
+radiative energy. Remote sensing of Environment, 112(6), 2950-2962.
+
+<a id="5">[5]</a>
+Kumar, S. S., Roy, D. P., Boschetti, L., & Kremens, R. (2011). Exploiting the 
+power law distribution properties of satellite fire radiative power retrievals: 
+A method to estimate fire radiative energy and biomass burned from sparse 
+satellite observations. Journal of Geophysical Research: Atmospheres, 116(D19).
+
+<a id="6">[6]</a>
+Clauset, A., Shalizi, C. R., & Newman, M. E. (2009). Power-law distributions in 
+empirical data. SIAM review, 51(4), 661-703.
+
+<a id="7">[7]</a>
+Neyman, J., & Pearson, E. S. (1933). IX. On the problem of the most efficient 
+tests of statistical hypotheses. Philosophical Transactions of the Royal Society 
+of London. Series A, Containing Papers of a Mathematical or Physical Character, 
+231(694-706), 289-337.

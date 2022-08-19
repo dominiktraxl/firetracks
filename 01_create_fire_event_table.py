@@ -457,7 +457,7 @@ class ProcessYearFday(object):
         # in case the file doesn't contain all 8 dates
         mod_fm_full[mod_days] = mod_fm
 
-        # firemas (MYD)
+        # firemask (MYD)
         myd_fm_full = np.zeros((8, 1200, 1200), dtype=np.uint8)
         myd_fm = mydds.select('FireMask').get()
 
